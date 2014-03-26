@@ -7,7 +7,7 @@ class kdump::params {
   $install_kdump         = false
   $kernel_debug          = ''
   $makedump_args         = '-c -d 31'
-  $net_proto             = false
+  $net_proto             = 'none'
   $package_ensure        = 'present'
   $run_level             = ''
   $save_dir              = 'file:///var/crash'

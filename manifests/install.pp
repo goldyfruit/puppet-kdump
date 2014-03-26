@@ -4,7 +4,7 @@ class kdump::install inherits kdump {
     package { $kdump::packages_name:
       ensure => $kdump::package_ensure,
     }
-    package { $kernel_debug:
+    package { $kdump::kernel_debug:
       ensure => $kdump::package_ensure,
     }
   }
