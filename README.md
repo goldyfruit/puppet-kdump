@@ -1,72 +1,61 @@
-puppet-grub2
+puppet-kdump
 ============
 
-This module manages GRUB 2 bootloader
+This module manages Kdump (kernel crash dump)
+The puppet-grub2 module is required
 
 ## Parameters
 
-#### badram
- - Define some memory addresses for BadRAM filtering
- - **STRING** : *Empty by default*
-
 #### config_template
-- Template used for GRUB config file
-- **STRING** : *'grub2/default_grub.erb'*
+- Template used for Kdump config file
+- **STRING** : *'kdump/kdump_tools.erb'*
 
-#### cmdline_linux
-- Arguments passed to the kernel
+#### core_dir
+ - Local path to save the vmcore to
+ - **STRING** : *'/var/crash'*
+
+#### debug_path
+- Path to a debug version of the running kernel
 - **STRING** : *Empty by default*
 
-#### cmdline_linux_default
-- Arguments passed to the kernel
+#### fail_cmd
+- This variable can be used to cause a reboot or start a shell if saving the VMcore fails
 - **STRING** : *Empty by default*
 
-#### default_entry
-- Define on which kernel the system will boot
-- **STRING** : *0*
-
-#### device_install
-- Define on which hard drive the MBR will be write
-- **STRING** : *Empty by default*
-
-#### disable_uuid
-- Define if GRUB should use the UUID in the root= path
+#### install_kdump
+- Install the Kdump packages
 - **BOOL** : *false*
 
-#### disable_recovery
-- Define if GRUB should display the recovery entry in the menu
-- **BOOL** : *false*
-
-#### gfxmode
-- Define which resolution shoule be used if VBE is used
+#### kernel_debug
+- Define the kernel debug package to install
 - **STRING** : *Empty by default*
 
-#### install_grub
-- Install the GRUB packages and install GRUB in the MBR
-- **BOOL** : *False*
+#### makedump_args
+- Extra arguments passed to makedumpfile to determine what Kdump should put in a VMcore
+- **STRING** : *-c -d 31*
+
+#### net_proto
+- Define if Kdump should send the VMcore via SSH, FTP, NFS, etc...
+- **STRING** : *none*
 
 #### package_ensure
-- Puppet stuff, define in which state should be the GRUB packages
+- Puppet stuff, define in which state should be the Kdump packages
 - **STRING** : *'present'*
 
-####  serial_command
-- Set settings for the serial console
+#### run_level
+- Define in which run level Kdump should reboot the system
 - **STRING** : *Empty by default*
 
-#### terminal
-- Define on which terminal the ouput should be display
+#### save_dir
+- Only used if net_proto is set, define where the VMcore should be create
+- **STRING** : *file:///var/crash*
+
+#### sysctl_args
+- Controls when a panic occurs, using the sysctl interface.
 - **STRING** : *Empty by default*
 
-#### timeout
+#### use_kdump
 - Define how many time (in second) that the menu should appears
-- **STRING** : *5*
-
-#### tune
-- Define if GRUB should make a beep when he starts
-- **STRING** : *Empty by default*
-
-#### update_grub
-- Regenerate the GRUB configuration after updates
 - **BOOL** : *true*
 
 ### Example
@@ -84,3 +73,18 @@ This module manages GRUB 2 bootloader
       tune                      => '480 440 1',
       device_install            => '/dev/sda',
     }
+
+    class { 'kdump':
+        install_kdump             => true,
+        use_kdump                 => true,
+        core_dir                  => '/var/crash',
+        debug_path                => '/usr/lib/debug/boot/vmlinux-3.2.0-4-amd64',
+        kernel_debug              => 'linux-image-3.2.0-4-amd64-dbg',
+        fail_cmd                  => 'reboot -f',
+        makedump_args             => '-c -d 31',
+        net_proto                 => 'none',
+        run_level                 => '1',
+        save_dir                  => 'file:///var/crash',
+        sysctl_args               => 'kernel.panic_on_oops=1 vm.panic_on_oom=1',
+    }
+
