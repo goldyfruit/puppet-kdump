@@ -1,0 +1,75 @@
+# WARNING: This file maintained by Puppet.
+# Editing is no use unless you avoid running the Puppet agent
+
+# USE_KDUMP - controls kdump will be configured
+#     0 - kdump kernel will not be loaded
+#     1 - kdump kernel will be loaded and kdump is configured
+<% if @use_kdump -%>
+USE_KDUMP=1
+<% else %>USE_KDUMP=0
+<% end -%>
+
+<% if !@run_level.empty? -%>
+KDUMP_RUNLEVEL="<%= @run_level %>"
+<% else %>KDUMP_RUNLEVEL="1"
+<% end -%>
+
+<% if !@save_dir.empty? -%>
+KDUMP_SAVEDIR="<%= @save_dir %>"
+<% else %>KDUMP_SAVEDIR="file:///var/crash"
+<% end -%>
+
+# KDUMP_COREDIR - local path to save the vmcore to.
+<% if !@core_dir.empty? -%>
+KDUMP_COREDIR="<%= @core_dir %>"
+<% else %>KDUMP_COREDIR="/var/crash"
+<% end -%>
+
+# KDUMP_NET - use network protocols to send the core
+#     none - don't use it
+#     ssh - use SSH
+#     nfs - use NFS
+#     ftp - use FTP
+<% if !@net_proto.empty? -%>
+KDUMP_NET="<%= @net_proto %>"
+<% else %>KDUMP_NET="none"
+<% end -%>
+
+# KDUMP_FAIL_CMD - This variable can be used to cause a reboot or
+#     start a shell if saving the vmcore fails.  If not set, "reboot -f"
+#     is the default.
+#     Example - start a shell if the vmcore copy fails:
+#         KDUMP_FAIL_CMD="echo 'makedumpfile FAILED.'; /bin/bash; reboot -f"
+<% if !@fail_cmd.empty? -%>
+KDUMP_FAIL_CMD="<%= @fail_cmd %>"
+<% else %>KDUMP_FAIL_CMD="reboot -f"
+<% end -%>
+
+# DEBUG_KERNEL - a debug version of the running kernel.  If not set,
+#     kdump-config will use /usr/lib/debug/vmlinux-$(uname -r) if it is
+#     available.  If it is not available, makedumpfile will be limited to
+#     dumping all pages in memory.
+<% if !@debug_path.empty? -%>
+DEBUG_KERNEL="<%= @debug_path %>"
+<% else %>DEBUG_KERNEL=/usr/lib/debug/boot/vmlinux-$(uname -r)
+<% end -%>
+
+# KDUMP_SYSCTL - controls when a panic occurs, using the sysctl
+#     interface.  The contents of this variable should be the
+#     "variable=value ..." portion of the 'sysctl -w ' command.
+#     If not set, the default value "kernel.panic_on_oops=1" will
+#     be used.  Disable this feature by setting KDUMP_SYSCTL=" "
+#     Example - also panic on oom:
+#         KDUMP_SYSCTL="kernel.panic_on_oops=1 vm.panic_on_oom=1"
+<% if !@sysctl_args.empty? -%>
+KDUMP_SYSCTL="<%= @sysctl_args %>"
+<% else %>KDUMP_SYSCTL="kernel.panic_on_oops=1"
+<% end -%>
+
+# MAKEDUMP_ARGS - extra arguments passed to makedumpfile (8).  The default,
+#     if unset, is to pass '-c -d 31' telling makedumpfile to use compression
+#     and reduce the corefile to in-use kernel pages only.
+<% if !@makedump_args.empty? -%>
+MAKEDUMP_ARGS="<%= @makedump_args %>"
+<% else %>MAKEDUMP_ARGS="-c -d 31"
+<% end -%>
